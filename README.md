@@ -17,10 +17,9 @@ allprojects {
 ### 添加依赖
 ```gradle
 dependencies {
-    implementation 'com.github.weidongjian:androidWheelView:1.0.0'
+    implementation 'com.github.MrRedhat:androidWheelView:v1.0.1'
 }
 ```
-
 
 
 效果图如下：
@@ -34,6 +33,10 @@ dependencies {
 1. 设置初始位置：调用`setInitPosition()`，不是`setCurrentPosition()`。
 
 ### 更新历史
+**版本号：1.0.1 更新时间：2024.11.20**
+
+增加对图标的配置
+
 **版本号：1.0.0 更新时间：2021.7.08**
 
 增加对无3D效果的配置：app:awv_isCurve="false"
@@ -74,6 +77,8 @@ dependencies {
 |      awv_isLoop       | boolean |    true    |    is loop mode    |
 
 ![LoopView](/photo/circle.jpg)
+
+![LoopView](/photo/WheelViewDesign.png)
 
 ## 滚动效果类似一个圆柱 ##
 ### 绘制 ###
