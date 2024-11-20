@@ -1,6 +1,8 @@
 package com.weidongjian.meitu.wheelviewdemo;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +14,7 @@ import com.weigan.loopview.OnItemScrollListener;
 import com.weigan.loopview.OnItemSelectedListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,6 +83,16 @@ public class MainActivity extends AppCompatActivity {
         });
         //设置原始数据
         loopView.setItems(list);
+
+        // 设置图标
+        List<Bitmap> icons = new ArrayList<>();
+        for (int i = 0; i < 60; i++) {
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), com.weigan.loopview.R.drawable.us_flag);
+            icons.add(bitmap);
+        }
+        loopView.setEnableIcons(true);
+        loopView.setIcons(icons);
+
         //设置初始位置
         loopView.setInitPosition(4);
     }
