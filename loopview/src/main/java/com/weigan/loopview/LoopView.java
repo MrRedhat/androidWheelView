@@ -91,7 +91,6 @@ public class LoopView extends View {
     int itemsVisibleCount;
 
     HashMap<Integer, IndexString> drawingStrings;
-//    HashMap<String,Integer> drawingStr
 
     int measuredHeight; //布局定义的高度
     int measuredWidth;
@@ -179,36 +178,47 @@ public class LoopView extends View {
         initLoopView(context, attributeset);
     }
 
-    private void initLoopView(Context context, AttributeSet attributeset) {
+    /**
+     * Initializes the LoopView with the given context and attribute set.
+     *
+     * @param context The context for the LoopView.
+     * @param attributeSet The attribute set containing customizations for the LoopView.
+     */
+    private void initLoopView(Context context, AttributeSet attributeSet) {
         this.context = context;
         handler = new MessageHandler(this);
-        flingGestureDetector = new GestureDetector(context, new LoopViewGestureListener(this));
-        flingGestureDetector.setIsLongpressEnabled(false);
 
-        TypedArray typedArray = context.obtainStyledAttributes(attributeset, R.styleable.LoopView);
-        if (typedArray != null) {
-            textSize = typedArray.getInteger(R.styleable.LoopView_awv_textsize, DEFAULT_TEXT_SIZE);
-            textSize = (int) (Resources.getSystem().getDisplayMetrics().density * textSize);
-            lineSpacingMultiplier = typedArray.getFloat(R.styleable.LoopView_awv_lineSpace, DEFAULT_LINE_SPACE);
-            centerTextColor = typedArray.getInteger(R.styleable.LoopView_awv_centerTextColor, 0xff313131);
-            outerTextColor = typedArray.getInteger(R.styleable.LoopView_awv_outerTextColor, 0xffafafaf);
-            dividerColor = typedArray.getInteger(R.styleable.LoopView_awv_dividerTextColor, 0xffc5c5c5);
-            itemsVisibleCount =
-                    typedArray.getInteger(R.styleable.LoopView_awv_itemsVisibleCount, DEFAULT_VISIBLE_ITEMS);
-            if (itemsVisibleCount % 2 == 0) {
-                itemsVisibleCount = DEFAULT_VISIBLE_ITEMS;
-            }
-            isLoop = typedArray.getBoolean(R.styleable.LoopView_awv_isLoop, true);
-            isEnableCurve = typedArray.getBoolean(R.styleable.LoopView_awv_isCurve, ENABLE_CURVE);
-            typedArray.recycle();
+        // Create a gesture detector for fling gestures.
+        flingGestureDetector = new GestureDetector(context, new LoopViewGestureListener(this));
+        flingGestureDetector.setIsLongpressEnabled(false); // Disable long press detection.
+
+        TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.LoopView);
+
+        // Retrieve and set the text size, line spacing, and colors from the attribute set.
+        textSize = typedArray.getInteger(R.styleable.LoopView_awv_textsize, DEFAULT_TEXT_SIZE);
+        textSize = (int) (Resources.getSystem().getDisplayMetrics().density * textSize);
+        lineSpacingMultiplier = typedArray.getFloat(R.styleable.LoopView_awv_lineSpace, DEFAULT_LINE_SPACE);
+        centerTextColor = typedArray.getInteger(R.styleable.LoopView_awv_centerTextColor, 0xff313131);
+        outerTextColor = typedArray.getInteger(R.styleable.LoopView_awv_outerTextColor, 0xffafafaf);
+        dividerColor = typedArray.getInteger(R.styleable.LoopView_awv_dividerTextColor, 0xffc5c5c5);
+
+        // Retrieve and set the number of items visible in the LoopView.
+        itemsVisibleCount = typedArray.getInteger(R.styleable.LoopView_awv_itemsVisibleCount, DEFAULT_VISIBLE_ITEMS);
+        if (itemsVisibleCount % 2 == 0) { // 只处理了奇数吧
+            itemsVisibleCount = DEFAULT_VISIBLE_ITEMS;
         }
 
+        // Retrieve and set the loop and curve enable flags.
+        isLoop = typedArray.getBoolean(R.styleable.LoopView_awv_isLoop, true);
+        isEnableCurve = typedArray.getBoolean(R.styleable.LoopView_awv_isCurve, ENABLE_CURVE);
+        typedArray.recycle();
+
+        // Initialize a map to store drawing strings.
         drawingStrings = new HashMap<>();
         totalScrollY = 0;
         initPosition = -1;
 
-        //初始化画笔
-        initPaintsIfPossible();
+        initPaintsIfPossible(); // 初始化画笔
     }
 
 
@@ -412,7 +422,7 @@ public class LoopView extends View {
     public List<IndexString> convertData(List<String> items){
         List<IndexString> data=new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            data.add(new IndexString(i,items.get(i)));
+            data.add(new IndexString(i, items.get(i)));
         }
         return data;
     }
@@ -462,6 +472,11 @@ public class LoopView extends View {
         }
     }
 
+    /**
+     * Draws the content of the custom loop view.
+     *
+     * @param canvas The canvas on which to draw the view's content.
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -469,9 +484,13 @@ public class LoopView extends View {
             return;
         }
 
+        // Calculate the change in scroll position.
         change = (int) (totalScrollY / (lineSpacingMultiplier * itemTextHeight));
-        preCurrentIndex = initPosition + change % items.size();
 
+        // Calculate the current index of the item.
+        preCurrentIndex = initPosition + change % items.size(); // 取模是为了循环
+
+        // If not looping, clamp the index to the range of items.
         if (!isLoop) {
             if (preCurrentIndex < 0) {
                 preCurrentIndex = 0;
@@ -502,18 +521,19 @@ public class LoopView extends View {
                     l1 = l1 - items.size();
                 }
                 drawingStrings.put(k1, items.get(l1));
-            } else if (l1 < 0) {
-//                drawingStrings[k1] = "";
-                drawingStrings.put(k1,new IndexString());
-            } else if (l1 > items.size() - 1) {
-//                drawingStrings[k1] = "";
-                drawingStrings.put(k1,new IndexString());
             } else {
-               // drawingStrings[k1] = items.get(l1);
-                drawingStrings.put(k1,items.get(l1));
+                if (l1 < 0) { // 在非循环状态下，对于超出范围的，需要插入占位的空字符串
+                    drawingStrings.put(k1, new IndexString());
+                } else if (l1 > items.size() - 1) {
+                    drawingStrings.put(k1, new IndexString());
+                } else {
+                    drawingStrings.put(k1,items.get(l1));
+                }
             }
             k1++;
         }
+
+        // Draw the indicators for the first and second lines.
         canvas.drawLine(paddingLeft, firstLineY, measuredWidth, firstLineY, paintIndicator);
         canvas.drawLine(paddingLeft, secondLineY, measuredWidth, secondLineY, paintIndicator);
 
@@ -682,7 +702,7 @@ public class LoopView extends View {
         return true;
     }
 
-    class  IndexString {
+    static class IndexString {
 
         public  IndexString(){
             this.string="";
