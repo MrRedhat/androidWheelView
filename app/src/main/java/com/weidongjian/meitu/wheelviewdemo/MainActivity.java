@@ -86,9 +86,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置图标
         List<Bitmap> icons = new ArrayList<>();
-        for (int i = 0; i < 60; i++) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), com.weigan.loopview.R.drawable.us_flag);
-            icons.add(bitmap);
+        for (int i = 0; i < 20; i++) {
+            icons.add(BitmapFactory.decodeResource(getResources(), R.drawable.us));
+            icons.add(BitmapFactory.decodeResource(getResources(), R.drawable.uk));
+            icons.add(BitmapFactory.decodeResource(getResources(), R.drawable.ca));
         }
         loopView.setEnableIcons(true);
         loopView.setIcons(icons);
